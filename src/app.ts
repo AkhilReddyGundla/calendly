@@ -1,7 +1,7 @@
 import express from "express";
-
+import { userRouter } from "./router/user.router";
 const app = express();
-
+app.use(express.json());
 
 app.get('/health',(_req, res)=>{
     res.json({
@@ -10,5 +10,6 @@ app.get('/health',(_req, res)=>{
     })
 })
 
+app.use("/users", userRouter);
 
 export{app};
