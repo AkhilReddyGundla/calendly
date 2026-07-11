@@ -1,5 +1,6 @@
 import { Prisma } from "../prisma/client";
 import { getAll, getUserById, createUser as createrUserInDB, updateUser as updateUserInDB, deleteUser as deleteUserInDB} from "../repositories/user.repositry"
+import { notFound } from "../utils/api-error";
 
 
 
@@ -10,6 +11,9 @@ export const users = async ()=>{
 
 export const getUser = async(id : number)=>{
     const user = await getUserById(id);
+    if(!user){
+        throw notFound("User not found");
+    }
     return user;
 }
 
