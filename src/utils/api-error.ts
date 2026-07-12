@@ -18,4 +18,5 @@ export const unauthorized = (message: string, details?: unknown) => new ApiError
 export const forbidden = (message: string, details?: unknown) => new ApiError(403, message, details);
 export const notFound = (message: string, details?: unknown) => new ApiError(404, message, details);
 export const internalServerError = (message = "Internal Server Error", details?: unknown) => new ApiError(500, message, details);
+export const conflict = (message : string, details? : any) => new ApiError(409, message, details);
 

@@ -1,4 +1,5 @@
 import { prisma } from "../config/database";
+import { createUserDto } from "../dtos/user.dto";
 import { Prisma } from "../prisma/client";
 
 
@@ -7,7 +8,7 @@ export const getAll = async()=>{
     return users;
 }
 
-export const getUserById = async(id: number)=>{
+export const getById = async(id: number)=>{
     const user = await prisma.user.findUnique({
         where: {
             id
@@ -16,7 +17,8 @@ export const getUserById = async(id: number)=>{
     return user;
 }
 
-export const createUser = async(name: string, email: string) =>{
+export const create = async(data: createUserDto) =>{
+    const{name, email} = data;
     const user = await prisma.user.create({
         data : {
             name,
@@ -26,7 +28,7 @@ export const createUser = async(name: string, email: string) =>{
     return user;
 }
 
-export const updateUser = async(id : number,  updatedData : Prisma.UserUpdateInput)=>{
+export const update = async(id : number,  updatedData : Prisma.UserUpdateInput)=>{
     const updatedUser = await prisma.user.update({
         where : {id},
         data: updatedData,
@@ -34,8 +36,17 @@ export const updateUser = async(id : number,  updatedData : Prisma.UserUpdateInp
     return updatedUser;
 }
 
-export const deleteUser = async(id : number)=>{
+export const remove = async(id : number)=>{
     await prisma.user.delete({
         where : {id}
     });
+}
+
+export const findByEmail = async(email: string)=>{
+    const user = await prisma.user.findUnique({
+        where:{
+            email,
+        }
+    })
+    return user;
 }
