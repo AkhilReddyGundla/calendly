@@ -1,15 +1,12 @@
 import { Request, Response } from "express";
 import { users, getUser, createUser as createrUserInDB, updateUser as updateUserDataInDB, deleteUser as deleteUserInDB } from "../services/user.service";
 import {ApiError, notFound } from "../utils/api-error";
+import { sendSuccess } from "../utils/api-response";
 
 
 const getAllUsers = async(req: Request, res: Response)=>{
     const allUsers = await users();
-    res.status(200).json({
-        success: true,
-        message: "Users fetched successfully",
-        data: allUsers
-    });
+    sendSuccess(res, allUsers, "Users fetched successfully");
 }
 
 const getUserById = async(req: Request, res: Response)=>{
@@ -21,21 +18,14 @@ const getUserById = async(req: Request, res: Response)=>{
     if(!user){
         throw notFound("User Not Found");
     }
-    res.status(200).json({
-        success: true,
-        message: "User fetched successfully",
-        data: user
-    });
+    sendSuccess(res, user, "User fetched successfully");
 }
 
 const createUser = async(req: Request, res: Response)=>{
     const {name, email} = req.body;
     // zod validation
     await createrUserInDB(name, email);
-    res.status(200).json({
-        "success": true,
-        "message": "user created in DB",
-    })
+    sendSuccess(res, "user created in DB");
 }
 
 const updateUser = async(req: Request, res: Response)=>{
@@ -43,20 +33,13 @@ const updateUser = async(req: Request, res: Response)=>{
     const {data} = req.body;
     
     const result = await updateUserDataInDB(Number(id), data);
-    res.status(200).json({
-        "success" : true,
-        "message": "updated successfully",
-    })
+    sendSuccess(res, result, "updated successfully");
 }
 
 const deleteUser = async(req: Request, res: Response)=>{
     const {id} = req.params;
     await deleteUserInDB(Number(id));
-    res.status(200).json({
-        "success": true,
-        "message": "User deleted successfully",
-    })
-
+    sendSuccess(res, "User deleted from DB");
 }
 
 export { getAllUsers, getUserById, createUser, updateUser, deleteUser };

@@ -13,7 +13,6 @@ export const errorHandler = (err: Error, req: Request, res: Response, next: Next
         res.status(err.statusCode).json(body);
         return;
     }
-
     const body: Record<string, any> = {
         success: false,
         message: "something went wrong",
