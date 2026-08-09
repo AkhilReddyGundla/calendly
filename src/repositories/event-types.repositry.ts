@@ -79,3 +79,14 @@ export const findActiveEventType = async(hostId: number)=>{
     })
     return eventType;
 }
+
+
+export const isSlugAvailable = async(hostId: number, slug: string) : Promise<boolean> =>{
+    const existingSlug = await prisma.eventType.findFirst({
+        where: {
+            hostId,
+            slug
+        }
+    })
+    return existingSlug != null;
+}
