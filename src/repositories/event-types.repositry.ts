@@ -18,17 +18,18 @@ export const getAllTypes = async (hostId: number, slug: string): Promise<EventTy
 }
 
 
-export const getByID = async(id: number) =>{
-    const eventType = await prisma.eventType.findUnique({
+export const getByEventTypeIDAndHost = async(hostId:number, eventTypeId: number) =>{
+    return await prisma.eventType.findFirst({
         where:{
-            id
-        }
+            id: eventTypeId,
+            hostId,
+        },
+        select:{id: true, slug: true},
     });
-    return eventType
 }
 
 
-export const create = async(hostId: number, data: createEventTypeDto)=>{
+export const create = async(hostId: number, data: createEventTypeDto & {slug: string})=>{
    
     const eventType = await prisma.eventType.create({
         data:{
@@ -39,25 +40,26 @@ export const create = async(hostId: number, data: createEventTypeDto)=>{
     return eventType;
 }
 
-export const update = async(hostId: number, data: updateEventTypeDto)=>{ 
+export const update = async(hostId:number, eventTypeId: number ,data: updateEventTypeDto)=>{ 
     const updatedEventType = await prisma.eventType.update({
         where:{
-            id: hostId
+            id: eventTypeId,
+            hostId
         },
-        data:{
-            ...data
-        }
+        data
     })
 
     return updatedEventType;
 }
 
-export const remove = async(hostId: number)=>{
-    await prisma.eventType.delete({
+export const remove = async(hostId: number, eventTypeId: number)=>{
+    const result = await prisma.eventType.deleteMany({
         where: {
-            id: hostId,
+            id: eventTypeId,
+            hostId
         }
     })
+    return result.count;
 }
 
 export const findByHostIdAndSlug = async(hostId: number, slug: string)=>{
@@ -71,7 +73,7 @@ export const findByHostIdAndSlug = async(hostId: number, slug: string)=>{
 }
 
 
-export const findActiveEventType = async(hostId: number)=>{
+export const listEventType = async(hostId: number)=>{
     const eventType = await prisma.eventType.findMany({
         where:{
             hostId,

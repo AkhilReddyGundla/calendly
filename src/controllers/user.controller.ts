@@ -1,6 +1,5 @@
 import { Request, Response } from "express";
 import { users, getUser, createUser as createrUserInDB, updateUser as updateUserDataInDB, deleteUser as deleteUserInDB } from "../services/user.service";
-import {ApiError, notFound } from "../utils/api-error";
 import { sendSuccess } from "../utils/api-response";
 import { createUserDto, findUserDto, updateUserDto } from "../dtos/user.dto";
 
