@@ -33,11 +33,12 @@ export const getById = async(req: Request, res: Response)=>{
 }
 
 export const getAll= async(req: Request, res: Response)=>{
-    const allEventTypes = listAllEventTypes(req.userId);
+    const allEventTypes = await listAllEventTypes(req.userId);
     sendSuccess(res, allEventTypes, "fetched allEventTypes");
 }
 
 export const getByIDPublic = async(req: Request, res: Response)=>{
     const {slug} = req.params;
     const eventType = getEventTypeByIdPublic(req.userId, String(slug));
+    sendSuccess(res, eventType, "Fetched eventType");
 }

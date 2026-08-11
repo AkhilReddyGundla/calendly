@@ -30,7 +30,7 @@ export const deleteEventType = async(hostId: number, eventTypeId: number)=>{
     return {success: true};
 }
 
-export const updateEventType = async(eventTypeId: number, hostId: number, data: updateEventTypeDto)=>{
+export const updateEventType = async(hostId: number, eventTypeId: number, data: updateEventTypeDto)=>{
     const eventType = await getByEventTypeIDAndHost(hostId, eventTypeId);
     if(!eventType){
         throw notFound("EventType not found");

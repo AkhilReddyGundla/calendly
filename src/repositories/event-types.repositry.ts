@@ -19,13 +19,13 @@ export const getAllTypes = async (hostId: number, slug: string): Promise<EventTy
 
 
 export const getByEventTypeIDAndHost = async(hostId:number, eventTypeId: number) =>{
-    return await prisma.eventType.findFirst({
+    const eventType = await prisma.eventType.findFirst({
         where:{
             id: eventTypeId,
             hostId,
         },
-        select:{id: true, slug: true},
     });
+    return eventType;
 }
 
 
@@ -83,7 +83,7 @@ export const listEventType = async(hostId: number)=>{
 }
 
 
-export const isSlugAvailable = async(hostId: number, slug: string) : Promise<boolean> =>{
+export const isSlugAvailable = async(hostId: number, slug: string)=>{
     const existingSlug = await prisma.eventType.findFirst({
         where: {
             hostId,
