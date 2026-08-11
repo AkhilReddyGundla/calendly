@@ -19,7 +19,8 @@ model User {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  eventTypes EventType[]
+  eventTypes       EventType[]
+  availabilityRule AvailabilityRule[]
 
   @@map("users")
 }
@@ -29,7 +30,7 @@ model EventType {
   hostId              Int
   title               String
   description         String?
-  slug                String 
+  slug                String
   durationMinutes     Int
   isActive            Boolean  @default(true)
   locationType        String   @default("online")
@@ -38,8 +39,24 @@ model EventType {
   bufferAfterMinutes  Int      @default(0)
   createdAt           DateTime @default(now())
   updatedAt           DateTime @updatedAt
-  @@unique([hostId, slug])
-  host User @relation(fields: [hostId], references: [id], onDelete: Cascade)
+  host                User     @relation(fields: [hostId], references: [id], onDelete: Cascade)
 
+  @@unique([hostId, slug])
   @@map("event_types")
+}
+
+model AvailabilityRule {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  weekday   Int
+  startTime DateTime
+  endTime   DateTime
+  timezone  String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, weekday])
+  @@map("availability_rules")
 }
