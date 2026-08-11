@@ -23,6 +23,7 @@ model User {
   availabilityRule      AvailabilityRule[]
   availabilityException AvailabilityException[]
   slots                 Slots[]
+  bookings              Bookings[]              @relation("HostBookings")
 
   @@map("users")
 }
@@ -43,7 +44,8 @@ model EventType {
   updatedAt           DateTime @updatedAt
   host                User     @relation(fields: [hostId], references: [id], onDelete: Cascade)
 
-  slots Slots[]
+  slots    Slots[]
+  bookings Bookings[]
 
   @@unique([hostId, slug])
   @@map("event_types")
@@ -102,8 +104,43 @@ model Slots {
   host      User      @relation(fields: [hostId], references: [id], onDelete: Cascade)
   eventType EventType @relation(fields: [eventTypeId], references: [id], onDelete: Cascade)
 
+  bookings Bookings[]
+
   @@unique([eventTypeId, startAt, endAt])
   @@index([hostId, startAt])
   @@index([eventTypeId, startAt, status])
   @@map("slots")
+}
+
+enum Booking_Status {
+  SUCCESS
+  FAIL
+  PENDING
+  REJECTED
+}
+
+model Bookings {
+  id              Int            @id @default(autoincrement())
+  userId          Int
+  hostId          Int
+  eventTypeId     Int
+  slotId          Int
+  inviteeEmail    String
+  inviteeNotes    String?
+  inviteePhone    String?
+  meetLink        String
+  calenderEventId String?
+  cancelledAt     DateTime?
+  status          Booking_Status
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @default(now())
+
+  host      User      @relation("HostBookings", fields: [userId], references: [id], onDelete: Cascade)
+  eventType EventType @relation(fields: [eventTypeId], references: [id], onDelete: Cascade)
+  slot      Slots     @relation(fields: [slotId], references: [id], onDelete: Cascade)
+
+  @@index([status])
+  @@index([inviteeEmail])
+  @@index([hostId, createdAt])
+  @@map("bookings")
 }
