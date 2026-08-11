@@ -22,6 +22,7 @@ model User {
   eventTypes            EventType[]
   availabilityRule      AvailabilityRule[]
   availabilityException AvailabilityException[]
+  slots                 Slots[]
 
   @@map("users")
 }
@@ -42,6 +43,8 @@ model EventType {
   updatedAt           DateTime @updatedAt
   host                User     @relation(fields: [hostId], references: [id], onDelete: Cascade)
 
+  slots Slots[]
+
   @@unique([hostId, slug])
   @@map("event_types")
 }
@@ -58,7 +61,7 @@ model AvailabilityRule {
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  @@unique([userId, weekday])
+  @@index([userId, weekday])
   @@map("availability_rules")
 }
 
@@ -75,5 +78,32 @@ model AvailabilityException {
   updatedAt   DateTime  @default(now())
   user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  @@unique([userId, date])
+  @@index([userId, date])
+  @@map("availability_exception")
+}
+
+enum Status {
+  AVAILABLE
+  RESERVED
+  CANCELLED
+}
+
+model Slots {
+  id          Int      @id @default(autoincrement())
+  hostId      Int
+  eventTypeId Int
+  startAt     DateTime @db.Time()
+  endAt       DateTime @db.Time()
+  duration    Int
+  status      Status   @default(AVAILABLE)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @default(now())
+
+  host      User      @relation(fields: [hostId], references: [id], onDelete: Cascade)
+  eventType EventType @relation(fields: [eventTypeId], references: [id], onDelete: Cascade)
+
+  @@unique([eventTypeId, startAt, endAt])
+  @@index([hostId, startAt])
+  @@index([eventTypeId, startAt, status])
+  @@map("slots")
 }
