@@ -1,6 +1,6 @@
 // 1. Import your shared prisma instance (adjust the path to your database.ts file)
 import { prisma } from "../config/database"; 
-import { createEventTypeDto, updateEventTypeDto } from "../dtos/event-type.dto";
+import { CreateEventTypeDto, UpdateEventTypeDto } from "../dtos/event-type.dto";
 
 // 2. Import the EventType typescript interface from your CUSTOM generated folder
 import { EventType } from "../generated/prisma"; 
@@ -29,7 +29,7 @@ export const getByEventTypeIDAndHost = async(hostId:number, eventTypeId: number)
 }
 
 
-export const create = async(hostId: number, data: createEventTypeDto & {slug: string})=>{
+export const create = async(hostId: number, data: CreateEventTypeDto & {slug: string})=>{
    
     const eventType = await prisma.eventType.create({
         data:{
@@ -40,7 +40,7 @@ export const create = async(hostId: number, data: createEventTypeDto & {slug: st
     return eventType;
 }
 
-export const update = async(hostId:number, eventTypeId: number ,data: updateEventTypeDto)=>{ 
+export const update = async(hostId:number, eventTypeId: number ,data: UpdateEventTypeDto)=>{ 
     const updatedEventType = await prisma.eventType.update({
         where:{
             id: eventTypeId,

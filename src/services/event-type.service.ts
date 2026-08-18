@@ -1,11 +1,11 @@
 import slugify from "slug";
-import { createEventTypeDto, updateEventTypeDto } from "../dtos/event-type.dto";
+import { CreateEventTypeDto, UpdateEventTypeDto } from "../dtos/event-type.dto";
 import { create, listEventType as hostEventTypes, findByHostIdAndSlug, getByEventTypeIDAndHost, isSlugAvailable, remove, update } from "../repositories/event-types.repositry";
 import { conflict, forbidden, notFound } from "../utils/api-error";
 import { nanoid } from "nanoid";
 import { getById as getUserById, } from "../repositories/user.repositry";
 
-export const createEventTypes = async(hostId: number, data: createEventTypeDto)=>{
+export const createEventTypes = async(hostId: number, data: CreateEventTypeDto)=>{
     const baseSlug = data.slug 
     ? slugify(data.slug, {lower: true})
     : slugify(data.title, {lower: true});
@@ -30,7 +30,7 @@ export const deleteEventType = async(hostId: number, eventTypeId: number)=>{
     return {success: true};
 }
 
-export const updateEventType = async(hostId: number, eventTypeId: number, data: updateEventTypeDto)=>{
+export const updateEventType = async(hostId: number, eventTypeId: number, data: UpdateEventTypeDto)=>{
     const eventType = await getByEventTypeIDAndHost(hostId, eventTypeId);
     if(!eventType){
         throw notFound("EventType not found");

@@ -14,5 +14,5 @@ export const createEventTypeSchema = z.object({
 
 export const updateEventTypeSchema = createEventTypeSchema.partial();
 
-export type createEventTypeDto = z.infer<typeof createEventTypeSchema>;
-export type updateEventTypeDto = z.infer<typeof updateEventTypeSchema>;
+export type CreateEventTypeDto = z.infer<typeof createEventTypeSchema>;
+export type UpdateEventTypeDto = z.infer<typeof updateEventTypeSchema>;
