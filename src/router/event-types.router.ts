@@ -9,7 +9,7 @@ export const eventTypesRouter = Router();
 eventTypesRouter.use(requireUserId);
 
 eventTypesRouter.post("/", validate(createEventTypeSchema), create);
-eventTypesRouter.put("/:eventTypeId",validate(updateEventTypeSchema) ,update);
+eventTypesRouter.patch("/:eventTypeId",validate(updateEventTypeSchema) ,update);
 eventTypesRouter.get("/:eventTypeId", getById);
 eventTypesRouter.get("/", getAll);
 //eventTypesRouter.get("/:slug", getByIDPublic);

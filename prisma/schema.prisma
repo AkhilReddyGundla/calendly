@@ -18,6 +18,7 @@ model User {
   name      String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+  timeZone  String   @default("UTC")
 
   eventTypes            EventType[]
   availabilityRule      AvailabilityRule[]
@@ -55,11 +56,12 @@ model AvailabilityRule {
   id        Int      @id @default(autoincrement())
   userId    Int
   weekday   Int
-  startTime DateTime
-  endTime   DateTime
+  startTime String
+  endTime   String
   timezone  String
   createdAt DateTime @default(now())
   updatedAt DateTime @default(now())
+  isActive  Boolean  @default(true)
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
@@ -68,17 +70,18 @@ model AvailabilityRule {
 }
 
 model AvailabilityException {
-  id          Int       @id @default(autoincrement())
+  id          Int      @id @default(autoincrement())
   userId      Int
-  date        DateTime  @db.Date
+  date        DateTime @db.Date
   type        String
   description String?
-  startTime   DateTime?
-  endTime     DateTime?
-  TimeZone    String
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @default(now())
-  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  startTime   String?
+  endTime     String?
+  timezone    String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @default(now())
+  message     String?
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId, date])
   @@map("availability_exception")
@@ -91,7 +94,7 @@ enum Status {
 }
 
 model Slots {
-  id          Int      @id @default(autoincrement())
+  id          String   @id @default(cuid())
   hostId      Int
   eventTypeId Int
   startAt     DateTime @db.Time()
@@ -124,7 +127,7 @@ model Bookings {
   userId          Int
   hostId          Int
   eventTypeId     Int
-  slotId          Int
+  slotId          String
   inviteeEmail    String
   inviteeNotes    String?
   inviteePhone    String?

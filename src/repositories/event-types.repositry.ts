@@ -17,6 +17,16 @@ export const getAllTypes = async (hostId: number, slug: string): Promise<EventTy
     return events as EventType[];
 }
 
+export const getAllActiveEventsTypes = async(hostId: number) =>{
+    const activeEvents = await prisma.eventType.findMany({
+        where: {
+            hostId,
+            isActive: true,
+        }
+    });
+    return activeEvents;
+}
+
 
 export const getByEventTypeIDAndHost = async(hostId:number, eventTypeId: number) =>{
     const eventType = await prisma.eventType.findFirst({

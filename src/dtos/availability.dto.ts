@@ -4,9 +4,9 @@ const timeRegex = /^([01]\d|2[0-3]):[0-5]\d$/;
 const dateRegex = /^\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12]\d|3[01])$/;
 
 export enum availabilityType{
-    "BLOCK_FULL_DAY",
-    "BLOCK_PARTIAL",
-    "ADD_AVAILABLE_WINDOW"
+    BLOCK_FULL_DAY = "BLOCK_FULL_DAY",
+    BLOCK_PARTIAL = "BLOCK_PARTIAL",
+    ADD_AVAILABLE_WINDOW = "ADD_AVAILABLE_WINDOW"
 }
 
 const createAvailabilityRuleBaseSchema = z.object({
@@ -14,7 +14,7 @@ const createAvailabilityRuleBaseSchema = z.object({
     startTime: z.string().regex(timeRegex, 'Start time is requried'),
     endTime: z.string().regex(timeRegex, 'End time is requried'),
     isActive: z.boolean().default(true),
-    timeZone: z.string().default('IST'),
+    timezone: z.string().default('IST'),
 });
 
 export const createAvailabilityRuleSchema = createAvailabilityRuleBaseSchema.refine(
@@ -30,7 +30,7 @@ const createAvailabilityExceptionBaseSchema = z.object({
     startTime: z.string().regex(dateRegex, 'Start time is requried'),
     endTime: z.string().regex(dateRegex, 'End time is requried'),
     message: z.string().optional(),
-    timeZone: z.string().default('IST'), 
+    timezone: z.string().default('IST'), 
 })
 
 export const createAvailabilityExceptionSchema = createAvailabilityExceptionBaseSchema.superRefine((data, ctx)=>{
@@ -49,7 +49,7 @@ export const createAvailabilityExceptionSchema = createAvailabilityExceptionBase
 
 export const updateAvailabilityExceptionRuleSchema = createAvailabilityExceptionBaseSchema.partial();
 
-export type CreateAvailabilityRuleSchemaDTO = z.infer<typeof createAvailabilityRuleSchema>;
-export type UpdateAvailabilityRuleSchemaDTO = z.infer<typeof updateAvailabilityRuleSchema>;
-export type CreateAvailabilityExceptionSchemaDTO = z.infer<typeof createAvailabilityExceptionSchema>;
-export type UpdateAvailabilityExceptionRuleSchemaDTO = z.infer<typeof updateAvailabilityExceptionRuleSchema>;
+export type CreateAvailabilityRuleDTO = z.infer<typeof createAvailabilityRuleSchema>;
+export type UpdateAvailabilityRuleDTO = z.infer<typeof updateAvailabilityRuleSchema>;
+export type CreateAvailabilityExceptionDTO = z.infer<typeof createAvailabilityExceptionSchema>;
+export type UpdateAvailabilityExceptionDTO = z.infer<typeof updateAvailabilityExceptionRuleSchema>;

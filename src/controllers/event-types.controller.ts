@@ -5,11 +5,11 @@ import { createEventTypes,
     getEventTypeById,
     listAllEventTypes,
     getEventTypeByIdPublic} from "../services/event-type.service";
-import { createEventTypeDto } from "../dtos/event-type.dto";
+import { CreateEventTypeDto } from "../dtos/event-type.dto";
 import { sendSuccess } from "../utils/api-response";
 
 export const create = async(req: Request, res: Response)=>{
-    const data: createEventTypeDto = req.body;
+    const data: CreateEventTypeDto = req.body;
     const eventType = await createEventTypes(req.userId, data);
     sendSuccess(res, eventType, "Event created successfully");
 }

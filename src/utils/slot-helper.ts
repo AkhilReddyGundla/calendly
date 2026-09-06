@@ -65,7 +65,7 @@ export const removeInvalidSlots = (windows: TimeWindow[], block: TimeWindow)=>{
         const blockedInterval = Interval.fromDateTimes(block.start, block.end);
         if(!availabilityInterval.overlaps(blockedInterval)){
             result.push(window);
-            return result;
+            continue;
         };
 
         //partial overlap
@@ -96,30 +96,36 @@ export const isSlotOverlaped = (slot: TimeWindow, bookedSlots: TimeWindow[], buf
     return overlaps;
 }
 
+export enum ExceptionType{
+    "BLOCK_FULL_DAY" ,
+    "BLOCK_PARTIAL",
+    "ADD_AVAILABLE_WINDOW",
+}
+
 export const applyExceptionForDate = (
     date: DateTime,
     baseWindows: TimeWindow[],
     exceptions: Array<{
-        type: "BLOCK_FULL_DAY" | "BLOCK_PARTIAL" | "ADD_AVAILABLE_WINDOW",
+        type: ExceptionType | string, // it should not be
         startTime: string | null,
         endTime: string | null,
         timeZone: string,
     }>,
 )=>{
-    const windows = [...baseWindows];
+    // returns valid window
+    let windows = [...baseWindows];
     for(const ex of exceptions){
-        if(ex.type === 'BLOCK_FULL_DAY'){
+        if(ex.type === ExceptionType.BLOCK_FULL_DAY){
             return [];
         }
-        if(ex.type === 'BLOCK_PARTIAL' &&  ex.startTime && ex.endTime){
+        if(ex.type === ExceptionType.BLOCK_PARTIAL &&  ex.startTime && ex.endTime){
             const block = {
                 start: parseDateOnTime(date, ex.startTime, ex.timeZone),
                 end: parseDateOnTime(date, ex.endTime, ex.timeZone),
             }
-            const validWindow = removeInvalidSlots(windows, block);
-            return validWindow;
+            windows = removeInvalidSlots(windows, block);
         }
-        if(ex.type === 'ADD_AVAILABLE_WINDOW' && ex.startTime && ex.endTime){ //adding custom window
+        if(ex.type === ExceptionType.ADD_AVAILABLE_WINDOW && ex.startTime && ex.endTime){ //adding custom window
             const block = {
                 start: parseDateOnTime(date, ex.startTime, ex.timeZone),
                 end: parseDateOnTime(date, ex.endTime, ex.timeZone),
@@ -128,4 +134,20 @@ export const applyExceptionForDate = (
         }
     }
     return mergeIntervals(windows);
+}
+
+
+
+export const windowsForWeekDayRules = (date: DateTime, startTime: string, endTime: string, weekDay:number, timeZone:string )=>{ // checks whether the passed date fall in weekday (ex: user only avaiable on mondays, it checks wheter passed date is monday or not)
+    const localDate = date.setZone(timeZone).startOf('day');
+    const luxonWeekday = weekDay === 0 ? 7 : weekDay;
+
+    if(localDate.weekday !== luxonWeekday)return [];
+
+    const start = parseDateOnTime(date, startTime, timeZone);
+    const end = parseDateOnTime(date, endTime, timeZone);
+
+    if(!start.isValid || !end.isValid || start >= end)return [];
+
+    return [{start, end}];
 }

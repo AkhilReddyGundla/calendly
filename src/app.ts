@@ -3,6 +3,7 @@ import { userRouter } from "./router/user.router";
 import { errorHandler } from "./middleware/error-handler";
 import { recordNotFound } from "./middleware/route-not-found";
 import { eventTypesRouter } from "./router/event-types.router";
+import { availabilityRouter } from "./router/availability.router";
 const app = express();
 app.use(express.json());
 
@@ -15,6 +16,7 @@ app.get('/health',(_req, res)=>{
 
 app.use("/users", userRouter);
 app.use("/event-types", eventTypesRouter);
+app.use("/availability", availabilityRouter)
 app.use(recordNotFound);
 app.use(errorHandler);
 
