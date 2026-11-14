@@ -6,7 +6,7 @@ const dateRegex = /^\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12]\d|3[01])$/;
 export enum availabilityType{
     BLOCK_FULL_DAY = "BLOCK_FULL_DAY",
     BLOCK_PARTIAL = "BLOCK_PARTIAL",
-    ADD_AVAILABLE_WINDOW = "ADD_AVAILABLE_WINDOW"
+    ADD_AVAILABLE_WINDOW = "ADD_AVAILABLE_WINDOW" // exception on particular available window
 }
 
 const createAvailabilityRuleBaseSchema = z.object({
@@ -14,7 +14,7 @@ const createAvailabilityRuleBaseSchema = z.object({
     startTime: z.string().regex(timeRegex, 'Start time is requried'),
     endTime: z.string().regex(timeRegex, 'End time is requried'),
     isActive: z.boolean().default(true),
-    timezone: z.string().default('IST'),
+    timezone: z.string().default('UTC'),
 });
 
 export const createAvailabilityRuleSchema = createAvailabilityRuleBaseSchema.refine(
@@ -27,10 +27,10 @@ export const updateAvailabilityRuleSchema = createAvailabilityRuleBaseSchema.par
 const createAvailabilityExceptionBaseSchema = z.object({
     date: z.string().regex(dateRegex, 'Date is requried'),
     type: z.enum(availabilityType, 'type is requried'),
-    startTime: z.string().regex(dateRegex, 'Start time is requried'),
-    endTime: z.string().regex(dateRegex, 'End time is requried'),
+    startTime: z.string().regex(timeRegex, 'Start time is requried'),
+    endTime: z.string().regex(timeRegex, 'End time is requried'),
     message: z.string().optional(),
-    timezone: z.string().default('IST'), 
+    timezone: z.string().default('UTC'), 
 })
 
 export const createAvailabilityExceptionSchema = createAvailabilityExceptionBaseSchema.superRefine((data, ctx)=>{

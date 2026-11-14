@@ -1,9 +1,9 @@
 import { prisma } from "../config/database"
 import { CreateAvailabilityExceptionDTO, CreateAvailabilityRuleDTO, UpdateAvailabilityExceptionDTO, UpdateAvailabilityRuleDTO } from "../dtos/availability.dto";
 
-export const listRulesByUser = async(userId: number)=>{
+export const listRulesByHost = async(hostId: number)=>{
     const availbilityRules = await prisma.availabilityRule.findMany({
-        where: {userId},
+        where: {hostId},
         orderBy :[{"weekday": "asc"}, {"startTime": "asc"}],
     })
     return availbilityRules;
@@ -35,10 +35,10 @@ export const getRuleById = async(id: number)=>{
     return avalibilityRule;
 }
 
-export const createRule = async(userId: number, data: CreateAvailabilityRuleDTO)=>{
+export const createRule = async(hostId: number, data: CreateAvailabilityRuleDTO)=>{
     const newAvalibilityRule = await prisma.availabilityRule.create({
         data: {
-            userId,
+            hostId,
             ...data
         }
     });
@@ -61,9 +61,9 @@ export const deleteRule = async(id: number)=>{
 
 // -------------
 
-export const listExceptionsByUser = async(userId: number)=>{
+export const listExceptionsByUser = async(hostId: number)=>{
     const exceptions = await prisma.availabilityException.findMany({
-        where: {userId},
+        where: {hostId},
     });
     return exceptions;
 }
@@ -89,17 +89,19 @@ export const findExceptionsInRange = async(userId: number, startDate: Date, endD
     return exceptions;
 }
 
-export const createException = async(userId: number, data: CreateAvailabilityExceptionDTO)=>{
-    await prisma.availabilityException.create({
+export const createException = async(hostId: number, data: CreateAvailabilityExceptionDTO)=>{
+    const exceptionRule = await prisma.availabilityException.create({
         data: {
-            userId,
+            hostId,
             ...data,
         }
-    })
+    });
+
+    return exceptionRule;
 }
 
 export const updateException = async(id: number, data: UpdateAvailabilityExceptionDTO)=>{
-    await prisma.availabilityException.update({
+    return prisma.availabilityException.update({
         where: {id},
         data,
     })

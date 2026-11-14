@@ -19,7 +19,7 @@ export const regenerateHostSlots = async(input: RegenerateSlots)=>{
 
     const from = input.from ? DateTime.fromISO(input.from, {zone: host.timeZone}).startOf('day') 
                             : DateTime.now().startOf('day');
-    const to = input.from? DateTime.fromISO(input.from, {zone: host.timeZone})
+    const to = input.to? DateTime.fromISO(input.to, {zone: host.timeZone})
                             : from.plus({days: slotGenerationDates}).endOf('day');
 
                     
@@ -40,8 +40,8 @@ export const regenerateHostSlots = async(input: RegenerateSlots)=>{
 
     for(const eventType of eventTypes){
         for(let pointer = from; pointer<=to; pointer = pointer.plus({days: 1}) ){
-            const dateKey = pointer.toISODate();//yyyy-mm-dd
-            const dayExceptions = exceptions.filter((exception)=> DateTime.fromJSDate(exception.date, {zone: host.timeZone}).toISODate() === dateKey);
+            const dateKey = pointer.toISODate();//convert into yyyy-mm-dd
+            const currentDayExceptions = exceptions.filter((exception)=> DateTime.fromJSDate(exception.date, {zone: host.timeZone}).toISODate() === dateKey);
             
             const validGeneratedKeys = new Set<string>();
             
@@ -49,17 +49,17 @@ export const regenerateHostSlots = async(input: RegenerateSlots)=>{
 
             for(const rule of rules){
                 // get valid windows in particular day
-                windows.push(...windowsForWeekDayRules(pointer, rule.startTime, rule.endTime, rule.weekday, rule.timezone));
+                windows.push(...windowsForWeekDayRules(pointer, rule.startTime, rule.endTime, rule.weekday, rule.timezone)); // convert elemets in availability rule into luxon compatable type
             }
 
             // need fix here type
-            const currentDayExceptionList = dayExceptions.map(exception =>({
+            const currentDayExceptionList = currentDayExceptions.map(exception =>({
                 type: exception.type,
                 startTime: exception.startTime,
                 endTime: exception.endTime,
                 timeZone: exception.timezone
             }))
-            windows = applyExceptionForDate(pointer, windows,currentDayExceptionList);
+            windows = applyExceptionForDate(pointer, windows, currentDayExceptionList);
             
 
             // generate slots and filter booked slots
@@ -72,10 +72,10 @@ export const regenerateHostSlots = async(input: RegenerateSlots)=>{
 
             for(const slot of slots){
                 const startAt = slot.start.toUTC().toJSDate();
-                const endAt = slot.start.toUTC().toJSDate();
+                const endAt = slot.end.toUTC().toJSDate();
                 const duration = slot.end.diff(slot.start, 'minute').minutes;
 
-                const key = `${eventType.id}_${startAt}_${endAt}`;
+                const key = `${eventType.id}_${startAt.toISOString()}_${endAt.toISOString()}`;
                 validGeneratedKeys.add(key);
                 
                 slotsData.push({
@@ -91,7 +91,7 @@ export const regenerateHostSlots = async(input: RegenerateSlots)=>{
             await upsertAvailableSlots(slotsData);
            
 
-            const futureSlots = await getFutureSlots(eventType.id, from, to);
+            const futureSlots = await getFutureSlots(eventType.id, from, to); // all slots in db
             
             // Remove invalid slots
            

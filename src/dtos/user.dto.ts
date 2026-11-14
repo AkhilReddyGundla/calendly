@@ -5,6 +5,7 @@ export const createUserSchema = z.object({
         message: "Invalid email address"
     }),
     name: z.string().min(1, 'name is requried').max(20, 'name must be less than 20 characters'),
+    slug: z.string().optional(),
 });
 
 export const findUserSchema = z.object({
@@ -20,6 +21,6 @@ export const updateUserSchema = z.object({
     message: 'At least one field is requried'
 });
 
-export type createUserDto = z.infer<typeof createUserSchema>;
+export type createUserDto = z.infer<typeof createUserSchema>;// convert into typescript type
 export type findUserDto = z.infer<typeof findUserSchema>;
 export type updateUserDto = z.infer<typeof updateUserSchema>;

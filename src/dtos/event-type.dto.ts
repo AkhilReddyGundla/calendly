@@ -3,7 +3,7 @@ import {z} from 'zod';
 export const createEventTypeSchema = z.object({
     title: z.string().min(1),
     description: z.string().min(1).max(1000).optional(),
-    slug: z.string().min(1).optional(),
+    slug: z.string().min(1).regex(/^[a-zA-Z0-9-]+$/, 'Slug must contain only alphanumeric characters and hyphens'),
     durationMinutes: z.number().min(10).max(120).default(30),
     isActive: z.boolean().default(true),
     locationType: z.enum(['online','in-person']).default('online'),

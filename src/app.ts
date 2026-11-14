@@ -14,9 +14,9 @@ app.get('/health',(_req, res)=>{
     })
 })
 
-app.use("/users", userRouter);
-app.use("/event-types", eventTypesRouter);
-app.use("/availability", availabilityRouter)
+app.use("/api/users", userRouter);
+app.use("/api/event-types", eventTypesRouter);
+app.use("/api/availability", availabilityRouter);
 app.use(recordNotFound);
 app.use(errorHandler);
 

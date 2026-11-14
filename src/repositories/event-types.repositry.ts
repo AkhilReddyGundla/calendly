@@ -27,7 +27,6 @@ export const getAllActiveEventsTypes = async(hostId: number) =>{
     return activeEvents;
 }
 
-
 export const getByEventTypeIDAndHost = async(hostId:number, eventTypeId: number) =>{
     const eventType = await prisma.eventType.findFirst({
         where:{
@@ -38,8 +37,7 @@ export const getByEventTypeIDAndHost = async(hostId:number, eventTypeId: number)
     return eventType;
 }
 
-
-export const create = async(hostId: number, data: CreateEventTypeDto & {slug: string})=>{
+export const create = async(hostId: number, data: CreateEventTypeDto)=>{
    
     const eventType = await prisma.eventType.create({
         data:{
@@ -49,7 +47,7 @@ export const create = async(hostId: number, data: CreateEventTypeDto & {slug: st
     })
     return eventType;
 }
-
+ 
 export const update = async(hostId:number, eventTypeId: number ,data: UpdateEventTypeDto)=>{ 
     const updatedEventType = await prisma.eventType.update({
         where:{
@@ -72,16 +70,16 @@ export const remove = async(hostId: number, eventTypeId: number)=>{
     return result.count;
 }
 
-export const findByHostIdAndSlug = async(hostId: number, slug: string)=>{
+export const findActiveByHostIdAndSlug = async(hostId: number, slug: string)=>{
     const eventType = await prisma.eventType.findFirst({
         where: {
+            isActive: true,
             hostId,
             slug,
         }
     })
     return eventType;
 }
-
 
 export const listEventType = async(hostId: number)=>{
     const eventType = await prisma.eventType.findMany({
@@ -91,7 +89,6 @@ export const listEventType = async(hostId: number)=>{
     })
     return eventType;
 }
-
 
 export const isSlugAvailable = async(hostId: number, slug: string)=>{
     const existingSlug = await prisma.eventType.findFirst({

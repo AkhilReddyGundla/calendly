@@ -16,6 +16,7 @@ model User {
   id        Int      @id @default(autoincrement())
   email     String   @unique
   name      String
+  slug      String?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   timeZone  String   @default("UTC")
@@ -24,7 +25,7 @@ model User {
   availabilityRule      AvailabilityRule[]
   availabilityException AvailabilityException[]
   slots                 Slots[]
-  bookings              Bookings[]              @relation("HostBookings")
+  hostBookings          Bookings[]              @relation("HostBookings")
 
   @@map("users")
 }
@@ -38,7 +39,7 @@ model EventType {
   durationMinutes     Int
   isActive            Boolean  @default(true)
   locationType        String   @default("online")
-  locationValue       String
+  locationValue       String?
   bufferBeforeMinutes Int      @default(0)
   bufferAfterMinutes  Int      @default(0)
   createdAt           DateTime @default(now())
@@ -54,36 +55,36 @@ model EventType {
 
 model AvailabilityRule {
   id        Int      @id @default(autoincrement())
-  userId    Int
+  hostId    Int
   weekday   Int
   startTime String
   endTime   String
-  timezone  String
+  timezone  String   @default("UTC")
   createdAt DateTime @default(now())
   updatedAt DateTime @default(now())
   isActive  Boolean  @default(true)
 
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user User @relation(fields: [hostId], references: [id], onDelete: Cascade)
 
-  @@index([userId, weekday])
+  @@index([hostId, weekday])
   @@map("availability_rules")
 }
 
 model AvailabilityException {
   id          Int      @id @default(autoincrement())
-  userId      Int
+  hostId      Int
   date        DateTime @db.Date
   type        String
   description String?
   startTime   String?
   endTime     String?
-  timezone    String
+  timezone    String   @default("UTC")
   createdAt   DateTime @default(now())
   updatedAt   DateTime @default(now())
   message     String?
-  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user        User     @relation(fields: [hostId], references: [id], onDelete: Cascade)
 
-  @@index([userId, date])
+  @@index([hostId, date])
   @@map("availability_exception")
 }
 
@@ -124,7 +125,6 @@ enum Booking_Status {
 
 model Bookings {
   id              Int            @id @default(autoincrement())
-  userId          Int
   hostId          Int
   eventTypeId     Int
   slotId          String
@@ -134,11 +134,11 @@ model Bookings {
   meetLink        String
   calenderEventId String?
   cancelledAt     DateTime?
-  status          Booking_Status
+  status          Booking_Status @default(PENDING)
   createdAt       DateTime       @default(now())
   updatedAt       DateTime       @default(now())
 
-  host      User      @relation("HostBookings", fields: [userId], references: [id], onDelete: Cascade)
+  host      User      @relation("HostBookings", fields: [hostId], references: [id], onDelete: Cascade)
   eventType EventType @relation(fields: [eventTypeId], references: [id], onDelete: Cascade)
   slot      Slots     @relation(fields: [slotId], references: [id], onDelete: Cascade)
 

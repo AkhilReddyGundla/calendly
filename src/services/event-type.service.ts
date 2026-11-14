@@ -1,14 +1,12 @@
 import slugify from "slug";
 import { CreateEventTypeDto, UpdateEventTypeDto } from "../dtos/event-type.dto";
-import { create, listEventType as hostEventTypes, findByHostIdAndSlug, getByEventTypeIDAndHost, isSlugAvailable, remove, update } from "../repositories/event-types.repositry";
+import { create, listEventType as hostEventTypes, findActiveByHostIdAndSlug, getByEventTypeIDAndHost, isSlugAvailable, remove, update } from "../repositories/event-types.repositry";
 import { conflict, forbidden, notFound } from "../utils/api-error";
 import { nanoid } from "nanoid";
 import { getById as getUserById, } from "../repositories/user.repositry";
 
 export const createEventTypes = async(hostId: number, data: CreateEventTypeDto)=>{
-    const baseSlug = data.slug 
-    ? slugify(data.slug, {lower: true})
-    : slugify(data.title, {lower: true});
+    const baseSlug = data.slug ?? slugify(data.title, {lower: true});
 
     if(!baseSlug){
         throw conflict("Unable to generate slug for eventType");
@@ -52,6 +50,11 @@ export const listAllEventTypes = async(hostId: number)=>{
 }
 
 export const getEventTypeById = async(hostId: number, eventId: number)=>{
+    const host = await getUserById(hostId);
+    if(!host){
+        throw notFound("Host is not found");
+    }
+
     const eventType = await getByEventTypeIDAndHost(hostId, eventId);
     if(!eventType){
         throw notFound("EventType not found");
@@ -61,13 +64,14 @@ export const getEventTypeById = async(hostId: number, eventId: number)=>{
 }
 
 export const getEventTypeByIdPublic = async(hostId: number, slug: string)=>{
-    const eventType = await findByHostIdAndSlug(hostId, slug);
-    if(!eventType){
-        throw notFound("EventType not found");
-    }
     const host = await getUserById(hostId);
     if(!host){
         throw notFound("Host is not found");
+    }
+
+    const eventType = await findActiveByHostIdAndSlug(hostId, slug);
+    if(!eventType){
+        throw notFound("EventType not found");
     }
     const publicEventType = {
         title: eventType.title,

@@ -6,9 +6,9 @@ export class ApiError extends Error{
         super(errorMessage);
         this.statusCode = statusCode;
         this.details = details;
-        this.message = errorMessage;
+        //this.message = errorMessage;
         this.name = "Api Error";
-        Error.captureStackTrace(this, this.constructor);
+        Error.captureStackTrace(this, this.constructor);// removes internal stack trace, just displays initial point of error
     }
 
 }
@@ -17,6 +17,5 @@ export const badRequest = (message: string, details?: unknown) => new ApiError(4
 export const unauthorized = (message: string, details?: unknown) => new ApiError(401, message, details);
 export const forbidden = (message: string, details?: unknown) => new ApiError(403, message, details);
 export const notFound = (message: string, details?: unknown) => new ApiError(404, message, details);
-export const internalServerError = (message = "Internal Server Error", details?: unknown) => new ApiError(500, message, details);
+export const internalServerError = (message = "Internal Server Error", details?: unknown) => new ApiError(500, message);
 export const conflict = (message : string, details? : any) => new ApiError(409, message, details);
-
