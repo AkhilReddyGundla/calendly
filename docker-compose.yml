@@ -26,8 +26,11 @@ services:
       - POSTGRES_PWD=${POSTGRES_PASSWORD:? SET POSTGRES_PASSWORD in .env}
       - POSTGRES_SEEDS=postgres
       - POSTGRES_DB=defaultdb
+      - DYNAMIC_CONFIG_FILE_PATH=config/dynamicconfig/development-sql.yml
     ports:
       - "7233:7233"
+    volumes:
+      - ./temporal/dynamicConfig:/etc/temporal/config/dynamicconfig
     restart: unless-stopped
   temporal-ui:
     image: temporalio/ui:2.25.0
