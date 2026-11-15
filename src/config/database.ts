@@ -3,9 +3,13 @@ import { Pool } from 'pg';
 import { PrismaPg } from "@prisma/adapter-pg"
 import { PrismaClient } from "../generated/prisma/client.js"
 
+const connectionString = process.env.DATABASE_URL;
+const databaseHost = connectionString ? new URL(connectionString).hostname : "";
+const localHosts = new Set(["localhost", "127.0.0.1", "::1", "[::1]", "postgres"]);
+
 const pool = new Pool({
-    connectionString: process.env.DATABASE_URL,
-    ssl: {
+    connectionString,
+    ssl: localHosts.has(databaseHost) ? false : {
         rejectUnauthorized: false,
     }
 })

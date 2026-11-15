@@ -1,26 +1,45 @@
-service:
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:15-alpine
+    container_name: postgres_db
+    environment: 
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:? Set POSTGRES_PWD in .env}
+      POSTGRES_DB: defaultdb
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    restart: unless-stopped
+
   temporal:
     image: temporalio/auto-setup:1.25.2
     container_name: temporal
-    envirornment:
-      - SQL_PLUGIN=postgress
-      - POSTGRESS_SEEDS=${pg-57eadd1-calendlyapp.l.aivencloud.com}
-      - DB_PORT=${25461}
-      - POSTGRES_USER=${avnadmin}
-      - POSTGRES_PWD=${POSTGRES_PWD:?Set POSTGRES_PWD in .env}
-      - DB_NAME=defaultdb
+    depends_on: 
+      - postgres
+    environment:
+      - DB=postgres12
+      - DB_PORT=5432
+      - POSTGRES_USER=${POSTGRES_USER:? SET POSTGRES_USER in .env}
+      - POSTGRES_PWD=${POSTGRES_PASSWORD:? SET POSTGRES_PASSWORD in .env}
+      - POSTGRES_SEEDS=postgres
+      - POSTGRES_DB=defaultdb
     ports:
-      -"7233:7233"
-
-
-
+      - "7233:7233"
+    restart: unless-stopped
   temporal-ui:
-    image: temporalio/ui:2.31.2
+    image: temporalio/ui:2.25.0
+    container_name: temporal_ui
     depends_on:
-      -temporal
-    environments:
-      TEMPORAL_ADDRESS: temporal:7233
-      TEMPORAL_CORS_ORGIN: http://localhost:3000,http://localhost:5173
+      - temporal
+    environment:
+      - TEMPORAL_ADDRESS=temporal:7233
+      - TEMPORAL_CORS_ORIGIN=http://localhost:3000,http://localhost:5173
     ports:
-      -"8080:8080"
-
+      - "8080:8080"
+    restart: unless-stopped
+  
+volumes:
+  pgdata:

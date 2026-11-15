@@ -37,6 +37,7 @@ SLOT_GENERATION_DAYS=30
 ```
 
 `DATABASE_URL` is required by Prisma and the PostgreSQL adapter. `PORT`, `NODE_ENV`, and `SLOT_GENERATION_DAYS` have defaults in the application.
+Local PostgreSQL hosts (`localhost`, loopback addresses, or the Compose service name `postgres`) connect without TLS; other hosts use TLS.
 
 ### 3. Apply database migrations
 
