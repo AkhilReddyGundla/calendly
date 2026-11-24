@@ -8,6 +8,7 @@ A TypeScript and Express API for managing users, event types, availability rules
 - Event type CRUD operations
 - Weekly availability rules
 - Availability exceptions
+- Service logic for generating and reconciling future event slots
 - PostgreSQL persistence through Prisma
 - Health check endpoint
 
@@ -30,16 +31,28 @@ pnpm install
 Create a `.env` file in the project root:
 
 ```env
-DATABASE_URL="postgresql://USER:PASSWORD@HOST:5432/DATABASE?schema=public"
+POSTGRES_USER=postgres
+POSTGRES_PASSWORD=postgres
+DATABASE_URL="postgresql://postgres:postgres@localhost:5432/defaultdb?schema=public"
 PORT=3000
 NODE_ENV=development
 SLOT_GENERATION_DAYS=30
 ```
 
-`DATABASE_URL` is required by Prisma and the PostgreSQL adapter. `PORT`, `NODE_ENV`, and `SLOT_GENERATION_DAYS` have defaults in the application.
+`DATABASE_URL` is required by Prisma and the PostgreSQL adapter. `POSTGRES_USER` and `POSTGRES_PASSWORD` are used by Docker Compose. `PORT`, `NODE_ENV`, and `SLOT_GENERATION_DAYS` have defaults in the application; the slot-generation service uses the latter as its default generation window.
 Local PostgreSQL hosts (`localhost`, loopback addresses, or the Compose service name `postgres`) connect without TLS; other hosts use TLS.
 
-### 3. Apply database migrations
+### 3. Start local PostgreSQL (optional)
+
+The Compose file can start PostgreSQL for local development:
+
+```bash
+docker compose up -d postgres
+```
+
+It also defines Temporal and the Temporal UI; those services are not currently used by the API.
+
+### 4. Apply database migrations
 
 For local development, create or update the database and generate the Prisma client:
 
@@ -54,7 +67,7 @@ You can also run the combined Prisma workflow:
 pnpm prisma:all
 ```
 
-### 4. Start the API
+### 5. Start the API
 
 Development mode watches the `src` directory and restarts on TypeScript changes:
 
@@ -82,16 +95,16 @@ curl http://localhost:3000/health
 
 | Method | Endpoint | Description |
 | --- | --- | --- |
-| `GET` | `/users` | List users |
-| `GET` | `/users/:id` | Get a user |
-| `POST` | `/users/create` | Create a user |
-| `PATCH` | `/users/:id/update` | Update a user |
-| `DELETE` | `/users/:id/delete` | Delete a user |
+| `GET` | `/api/users` | List users |
+| `GET` | `/api/users/:id` | Get a user |
+| `POST` | `/api/users/create` | Create a user |
+| `PATCH` | `/api/users/:id/update` | Update a user |
+| `DELETE` | `/api/users/:id/delete` | Delete a user |
 
 Create a user:
 
 ```bash
-curl -X POST http://localhost:3000/users/create \
+curl -X POST http://localhost:3000/api/users/create \
   -H 'Content-Type: application/json' \
   -d '{"email":"alex@example.com","name":"Alex"}'
 ```
@@ -102,16 +115,16 @@ All event type endpoints require the `user-id` header.
 
 | Method | Endpoint | Description |
 | --- | --- | --- |
-| `GET` | `/event-types` | List the current user's event types |
-| `GET` | `/event-types/:eventTypeId` | Get an event type |
-| `POST` | `/event-types` | Create an event type |
-| `PATCH` | `/event-types/:eventTypeId` | Update an event type |
-| `DELETE` | `/event-types/:eventTypeId` | Delete an event type |
+| `GET` | `/api/event-types` | List the current user's event types |
+| `GET` | `/api/event-types/:eventTypeId` | Get an event type |
+| `POST` | `/api/event-types` | Create an event type |
+| `PATCH` | `/api/event-types/:eventTypeId` | Update an event type |
+| `DELETE` | `/api/event-types/:eventTypeId` | Delete an event type |
 
 Create an event type:
 
 ```bash
-curl -X POST http://localhost:3000/event-types \
+curl -X POST http://localhost:3000/api/event-types \
   -H 'Content-Type: application/json' \
   -H 'user-id: 1' \
   -d '{
@@ -129,19 +142,19 @@ All availability endpoints require the `user-id` header.
 
 | Method | Endpoint | Description |
 | --- | --- | --- |
-| `GET` | `/availability/rules` | List weekly availability rules |
-| `POST` | `/availability/rules` | Create an availability rule |
-| `PATCH` | `/availability/rules/:ruleId` | Update an availability rule |
-| `DELETE` | `/availability/rules/:ruleId` | Delete an availability rule |
-| `GET` | `/availability/exception` | List availability exceptions |
-| `POST` | `/availability/exceptions` | Create an availability exception |
-| `PATCH` | `/availability/exceptions/:exceptionId` | Update an availability exception |
-| `DELETE` | `/availability/exceptions/:exceptionId` | Delete an availability exception |
+| `GET` | `/api/availability/rules` | List weekly availability rules |
+| `POST` | `/api/availability/rules` | Create an availability rule |
+| `PATCH` | `/api/availability/rules/:ruleId` | Update an availability rule |
+| `DELETE` | `/api/availability/rules/:ruleId` | Delete an availability rule |
+| `GET` | `/api/availability/exception` | List availability exceptions |
+| `POST` | `/api/availability/exceptions` | Create an availability exception |
+| `PATCH` | `/api/availability/exceptions/:exceptionId` | Update an availability exception |
+| `DELETE` | `/api/availability/exceptions/:exceptionId` | Delete an availability exception |
 
 Create a weekly rule:
 
 ```bash
-curl -X POST http://localhost:3000/availability/rules \
+curl -X POST http://localhost:3000/api/availability/rules \
   -H 'Content-Type: application/json' \
   -H 'user-id: 1' \
   -d '{
@@ -183,5 +196,5 @@ prisma/
 ## Current Limitations
 
 - The `user-id` header is used as request context; authentication and authorization are not implemented.
-- Booking routes are not currently mounted in `src/app.ts`, and the booking router is incomplete.
-- The checked-in `docker-compose.yml` contains configuration typos and should be corrected before using it as the local infrastructure setup.
+- Booking routes are not currently mounted, and the booking router is incomplete.
+- Slot generation is implemented as service logic but is not exposed through an API route or wired to a scheduled job.

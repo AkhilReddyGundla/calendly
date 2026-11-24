@@ -26,7 +26,7 @@ export const update = async(req: Request, res: Response)=>{
     sendSuccess(res, eventType, "Event updated successfully");
 }
 
-export const getById = async(req: Request, res: Response)=>{
+export const   getById = async(req: Request, res: Response)=>{
     const {eventTypeId} = req.params;
     const eventType = await getEventTypeById(req.userId, Number(eventTypeId));
     sendSuccess(res, eventType, "Event details fetched successfully");

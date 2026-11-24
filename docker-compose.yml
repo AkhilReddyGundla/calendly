@@ -17,6 +17,8 @@ services:
   temporal:
     image: temporalio/auto-setup:1.25.2
     container_name: temporal
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     depends_on: 
       - postgres
     environment:
@@ -34,7 +36,7 @@ services:
     restart: unless-stopped
   
   temporal-ui:
-    image: temporalio/ui:2.25.0
+    image: temporalio/ui:2.58.1
     container_name: temporal_ui
     depends_on:
       - temporal
