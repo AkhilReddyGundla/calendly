@@ -7,13 +7,13 @@ import { cancelSlotsByIds, getBookedSlotsForHostInRange, getFutureSlots, SlotUps
 import { applyExceptionForDate, isSlotOverlaped, splitSlots, TimeWindow, windowsForWeekDayRules } from "../utils/slot-helper";
 import { prisma } from "../config/database";
 
-export interface RegenerateSlots{
+export interface RegenerateSlotsInput{
     hostId: number,
     from?: string, // start date YYYY-MM-DD
     to?: string,    // end date YYYY-MM-DD
 }
 
-export const regenerateHostSlots = async(input: RegenerateSlots)=>{
+export const regenerateHostSlots = async(input: RegenerateSlotsInput)=>{
     const host = await getById(input.hostId);
     if(!host)return;
 
